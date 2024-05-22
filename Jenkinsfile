@@ -5,7 +5,7 @@ pipeline {
         // Set your AWS credentials and region
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        AWS_REGION = 'us-west-2' // Change this to your desired region
+        AWS_REGION = 'ap-south-1' // Change this to your desired region
 
         // Define the Terraform version to use
         TERRAFORM_VERSION = '1.0.0'
