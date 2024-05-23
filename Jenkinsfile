@@ -14,8 +14,29 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from the repository
-                checkout scm
+                // Checkout the code from the GitHub repository
+                git 'https://github.com/venkateshreddy1996/jenkins-terraform-aws'
+            }
+        }
+	
+        stage('Install Terraform') {
+            steps {
+                script {
+                    // Check if Terraform is installed
+                    def terraformInstalled = sh(script: 'which terraform', returnStatus: true) == 0
+
+                    if (!terraformInstalled) {
+                        echo 'Terraform not found. Installing...'
+                        sh """
+                            wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+                            unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+                            sudo mv terraform /usr/local/bin/
+                            rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+                        """
+                    } else {
+                        echo 'Terraform is already installed.'
+                    }
+                }
             }
         }
 
@@ -23,9 +44,7 @@ pipeline {
             steps {
                 script {
                     // Initialize Terraform
-                    sh """
-                        terraform init
-                    """
+                    sh 'terraform init'
                 }
             }
         }
@@ -34,9 +53,7 @@ pipeline {
             steps {
                 script {
                     // Generate Terraform execution plan
-                    sh """
-                        terraform plan -out=tfplan
-                    """
+                    sh 'terraform plan -out=tfplan'
                 }
             }
         }
@@ -45,9 +62,7 @@ pipeline {
             steps {
                 script {
                     // Apply the Terraform configuration
-                    sh """
-                        terraform apply -auto-approve tfplan
-                    """
+                    sh 'terraform apply -auto-approve tfplan'
                 }
             }
         }
@@ -57,9 +72,7 @@ pipeline {
         always {
             script {
                 // Cleanup and remove the plan file
-                sh """
-                    rm -f tfplan
-                """
+                sh 'rm -f tfplan'
             }
         }
 
